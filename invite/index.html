@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>가계쀼 초대</title>
+    <meta property="og:title" content="가계쀼 가계부 초대" />
+    <meta property="og:description" content="함께 지출을 기록하고 예산을 관리해요. 눌러서 초대를 받아 주세요." />
+    <style>
+      :root{color-scheme:light;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#191f28;background:#f8f7f4}
+      body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;box-sizing:border-box}
+      main{width:100%;max-width:400px;background:#fff;border-radius:24px;padding:36px 24px 28px;text-align:center;box-shadow:0 4px 24px rgba(25,31,40,.06)}
+      .icon{width:64px;height:64px;margin:0 auto 20px;border-radius:20px;background:#eeeefe;display:flex;align-items:center;justify-content:center}
+      h1{font-size:1.4rem;margin:0 0 8px;line-height:1.4}
+      p{margin:0;color:#4e5968;line-height:1.6}
+      .open{display:block;margin:28px 0 12px;padding:16px;border-radius:14px;background:#3b3bf9;color:#fff;font-size:1.05rem;font-weight:700;text-decoration:none}
+      .code{margin-top:24px;padding:16px;border-radius:14px;background:#f2f4f7}
+      .code small{display:block;color:#8b95a1;font-size:.82rem;margin-bottom:4px}
+      .code strong{font-size:1.3rem;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+      button{margin-top:10px;border:0;background:none;color:#3b3bf9;font:inherit;font-weight:700;padding:8px 12px;cursor:pointer}
+      .hint{margin-top:20px;font-size:.85rem;color:#8b95a1}
+      .bad h1{color:#4e5968}
+    </style>
+  </head>
+  <body>
+    <main id="ok" hidden>
+      <div class="icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b3bf9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+      </div>
+      <h1>가계부에 초대받았어요</h1>
+      <p>가계쀼에서 함께 지출을 기록하고<br />예산을 관리해요.</p>
+      <a class="open" id="open" href="#">가계쀼에서 열기</a>
+      <p class="hint">앱이 열리지 않으면 가계쀼 앱에서<br />'초대 코드로 참여'에 아래 코드를 입력하세요.</p>
+      <div class="code">
+        <small>초대 코드</small>
+        <strong id="code"></strong>
+        <div><button type="button" id="copy">코드 복사</button></div>
+      </div>
+    </main>
+    <main id="bad" class="bad" hidden>
+      <h1>초대 링크가 올바르지 않아요</h1>
+      <p>보낸 분께 초대 메시지를 다시 받아 주세요.</p>
+    </main>
+    <script>
+      // 코드는 hex 12자리만 받는다. 다른 값은 페이지에 넣지 않는다.
+      var c = (new URLSearchParams(location.search).get('c') || '').toLowerCase();
+      if (!/^[0-9a-f]{12}$/.test(c)) {
+        document.getElementById('bad').hidden = false;
+      } else {
+        document.getElementById('ok').hidden = false;
+        document.getElementById('code').textContent = c;
+        var android = /android/i.test(navigator.userAgent);
+        // 안드로이드는 intent://로 카톡 인앱 브라우저에서도 앱을 연다. 아이폰은 앱 스킴.
+        var link = android
+          ? 'intent://invite/' + c + '#Intent;scheme=gagyeppyu;package=kr.gagyeppyu.app;end'
+          : 'gagyeppyu://invite/' + c;
+        document.getElementById('open').href = link;
+        // 열자마자 한 번 시도한다. 막히면 버튼을 누르면 된다.
+        setTimeout(function () { location.href = link; }, 300);
+        document.getElementById('copy').onclick = function () {
+          var b = this;
+          var done = function () { b.textContent = '복사했어요'; };
+          if (navigator.clipboard) navigator.clipboard.writeText(c).then(done, function () {});
+          else { var t = document.createElement('textarea'); t.value = c; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); done(); }
+        };
+      }
+    </script>
+  </body>
+</html>
